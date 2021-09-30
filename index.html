@@ -198,10 +198,10 @@
         $saveBtn.style.display = 'block'
         // $uploadBtn.style.display = 'none'
     }
-    // 判断是否在微信中
+    // 判断是否在微信/lark中
     function is_weixn(){
         var ua = navigator.userAgent.toLowerCase();
-        if(ua.match(/MicroMessenger/i)=="micromessenger") {
+        if(ua.match(/MicroMessenger/i)=="micromessenger" || ua.indexOf('lark') !== -1) {
             return true;
         } else {
             return false;
