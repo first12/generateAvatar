@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成头像</title>
+</head>
+<style>
+    *{
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    .content {
+        margin: 0 auto;
+        width: 100%;
+        height: 100vh;
+        max-width: 750px;
+        background: url('./images/bg.png') no-repeat;
+        background-size: cover;
+        min-height: 760px;
+    }
+    .header{
+        text-align: center;
+    }
+    .header img {
+        height: 100px;
+        margin-top: 50px;
+    }
+    .avatar-box {
+        position: relative;
+    }
+    .avatar-box .avatar-img {
+        position: relative;
+        width: 212px;
+        height: 212px;
+        background: #fff;
+        margin: 20px auto;
+        border-radius: 8px;
+        border: 6px solid #fbe6b5;
+
+    }
+
+    .oprate-btn {
+        position: absolute;
+        width: 60px;
+        height: 60px;
+    }
+    .oprate-btn img {
+        width: 100%;
+        height: 100%;
+    }
+    .left-btn {
+        left: -80px;
+        top: 70px;
+        transform: rotate(180deg);
+    }
+    .right-btn {
+        right: -80px;
+        top: 70px;
+    }
+    .upload-btn{
+        cursor: pointer;
+        margin: 0 auto;
+        width: 200px;
+        height: 60px;
+        background: url(./images/upload-btn.png);
+        background-size: cover;
+    }
+    .save-btn{
+        display: none;
+        cursor: pointer;
+        margin: 10px auto 0;
+        width: 200px;
+        height: 60px;
+        background: url(./images/save-btn.png);
+        background-size: contain;
+    }
+    #file {
+        opacity: 0;
+        width: 100%;
+        height: 100%;
+    }
+    .bottom {
+        width: 300px;
+        height: 100px;
+        margin: 20px auto;
+    }
+    .bottom img {
+        height: 100%;
+    }
+    .result-box {
+        margin-top: 20px;
+        display: none;
+        text-align: center;
+    }
+    .result-box img {
+        background-color: #fff;
+    }
+</style>
+<body>
+
+    <div class="content">
+        <div class="header">
+            <img  src="./images/header.png" alt="">
+        </div>
+
+        <div class="avatar-box">
+            <div class="avatar-img">
+                <canvas width="200" height="200" id="canvas"></canvas>
+                
+                <div class="right-btn oprate-btn" onClick="changeAvatar('right')">
+                    <img src="./images/right-btn.png" alt="">
+                </div>
+                <div class="left-btn oprate-btn" onClick="changeAvatar('left')">
+                    <img src="./images/right-btn.png" alt="">
+                </div>
+            </div>
+            <div class="upload-btn">
+                <input id="file" type="file" onChange="selectImg()">
+            </div>
+            <div class="save-btn" onClick="saveImg()">
+            </div>
+        </div>
+
+        <div class="result-box">
+            <img src="" alt="">
+        </div>
+        <div class="bottom">
+            <img src="./images/bottom.png" alt="">
+        </div>
+    </div>
+
+</body>
+<script>
+    var $result = document.querySelector('.result-box') // 最终保存的头像图片
+    var $resultImg = document.querySelector('.result-box img') // 最终保存的头像图片
+    var $avatarBox = document.querySelector('.avatar-box') // 展示选择图片的元素
+    var $img = new Image()
+    $img.setAttribute("crossOrigin",'Anonymous')
+    var $canvas = document.querySelector('#canvas') // canvas元素
+    var $uploadBtn = document.querySelector('.upload-btn') // 上传按钮
+    var $saveBtn = document.querySelector('.save-btn') // 保存按钮
+    var uploadSrc = null
+    var avatarStyle = 0; // 头像样图片索引
+    // 选择图片的回调
+    function selectImg(e){
+        var context = $canvas.getContext('2d')
+        context.clearRect(0, 0, 200, 200)
+        var file = document.querySelector('#file').files[0]
+        uploadSrc=window.URL.createObjectURL(file);
+        if(uploadSrc){
+            $img.src=uploadSrc
+            $img.onload = function(){
+                var context = $canvas.getContext('2d')
+                console.log(1);
+                context.drawImage($img, 0, 0,200, 200)
+                generateAvatar()
+            }
+        }
+    }
+    // 合成头像
+    function generateAvatar(){
+        var img = new Image()
+        img.setAttribute("crossOrigin",'Anonymous')
+        img.src='./images/hat'+ avatarStyle +'.png'
+        img.onload = function(){
+            var context = $canvas.getContext('2d')
+            context.drawImage(img, 0, 0, 200, 200)
+            console.log(2);
+            showSaveBtn()
+        }
+
+    }
+    // 改变合成头像的样式
+    function changeAvatar(type){
+        console.log(type);
+        var context = $canvas.getContext('2d')
+        context.clearRect(0, 0, 200, 200)
+        if(type === 'right'){
+            if(avatarStyle >= 11){
+                avatarStyle = 0
+            }else {
+                avatarStyle ++
+            }
+        }else {
+            if(avatarStyle <= 0){
+                avatarStyle = 11
+            }else {
+                avatarStyle --
+            }
+        }
+        selectImg()
+    }
+    // 显示
+    function showSaveBtn(){
+        $saveBtn.style.display = 'block'
+        // $uploadBtn.style.display = 'none'
+    }
+    // 判断是否在微信中
+    function is_weixn(){
+        var ua = navigator.userAgent.toLowerCase();
+        if(ua.match(/MicroMessenger/i)=="micromessenger") {
+            return true;
+        } else {
+            return false;
+        }
+    }
+    // 保存头像
+    function saveImg(){
+    
+        if(is_weixn()){
+            var tmpimg = $canvas.toDataURL("image/png");
+            $resultImg.src = tmpimg
+            $avatarBox.style.display = 'none'
+            $result.style.display = 'block'
+            $resultImg.onload = function(){
+                alert('请长按图片保存到本地')
+            }
+        }else {
+
+            downloadFile('avatar.png', $canvas.toDataURL("image/png"));
+        }
+
+    }
+    // base64转blob
+    function base64Img2Blob(code){
+        var parts = code.split(';base64,');
+        var contentType = parts[0].split(':')[1];
+        var raw = window.atob(parts[1]);
+        var rawLength = raw.length;
+
+        var uInt8Array = new Uint8Array(rawLength);
+
+        for (var i = 0; i < rawLength; ++i) {
+            uInt8Array[i] = raw.charCodeAt(i);
+        }
+
+        return new Blob([uInt8Array], {type: contentType}); 
+    }
+    function downloadFile(fileName, content){
+        
+        var aLink = document.createElement('a');
+        var blob = base64Img2Blob(content); //new Blob([content]);
+        
+        var evt = document.createEvent("MouseEvents");
+        evt.initEvent("click", false, false);
+        aLink.download = fileName;
+        aLink.href = URL.createObjectURL(blob);
+    
+        aLink.dispatchEvent(evt);
+    }       
+</script>
+</html>
